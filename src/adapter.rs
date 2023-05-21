@@ -95,7 +95,7 @@ where
                         local_player_listener,
                     } = snapshot;
                     if let game::Status::Ended { success } = status {
-                        let stats = to_graphics_stats(user_stats, &*namer);
+                        let stats = to_graphics_stats(user_stats, namer);
                         return Err((f, stats, success));
                     }
                     let lives_left = graphics::LivesLeft(lives_left);
@@ -103,7 +103,7 @@ where
                     let grid = Grid {
                         local_player_listener,
                         field_provider,
-                        namer: &*namer,
+                        namer,
                     };
                     Ok(f(graphics::Status::Active(graphics::Active {
                         coords,

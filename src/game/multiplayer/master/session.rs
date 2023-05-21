@@ -38,7 +38,7 @@ impl game::session::Session for Session {
             status,
             coords,
             stats,
-            namer: Box::new(NamerWrapper(namer)),
+            namer,
             field_provider,
             local_player_listener: &mut local_player_listener,
         });

@@ -1,16 +1,19 @@
 use super::*;
 
 /// Contains all data required to run a single-player game
-pub struct Server {
+pub struct Server<L> {
     server: game::server::session::Session,
-    local_updates_listener: Box<dyn UpdatesListener>,
+    local_updates_listener: L,
     uid: SessionUserID,
 }
 
-impl Server {
+impl<L> Server<L>
+where
+    L: UpdatesListener,
+{
     pub fn new(
         server: game::server::session::Session,
-        local_updates_listener: Box<dyn UpdatesListener>,
+        local_updates_listener: L,
         uid: SessionUserID,
     ) -> Self {
         Self {
@@ -39,7 +42,10 @@ impl Server {
     }
 }
 
-impl LocalPlayerListener for Server {
+impl<L> LocalPlayerListener for Server<L>
+where
+    L: UpdatesListener,
+{
     fn on_left_click(&mut self, coord: &Coord) {
         let updates = self.server.uncover(coord, self.uid);
         self.on_click(updates)

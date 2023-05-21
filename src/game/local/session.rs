@@ -7,7 +7,7 @@ use std::rc::Rc;
 
 /// Contains all data required to run a single-player game
 pub struct Session {
-    server: server::Server,
+    server: server::Server<ClientSessionCell>,
     client: ClientSessionCell,
     namer: LocalSessionNamer,
 }
@@ -23,7 +23,7 @@ impl Session {
         let client = ClientSessionCell::new(client);
         let server = game::server::session::Session::new(coords, mines, lives);
         let local_updates_listener = client.clone();
-        let server = server::Server::new(server, Box::new(local_updates_listener), SessionUserID::new(1));
+        let server = server::Server::new(server, local_updates_listener, SessionUserID::new(1));
         let namer = LocalSessionNamer;
         Self {
             server,
@@ -46,14 +46,13 @@ impl game::session::Session for Session {
             user_stats,
             status,
             coords,
-            namer: Box::new(self.namer.clone()),
+            namer: &self.namer,
             field_provider: &self.client,
             local_player_listener: &mut self.server,
         })
     }
 }
 
-#[derive(Clone)]
 struct LocalSessionNamer;
 
 impl Namer for LocalSessionNamer {
