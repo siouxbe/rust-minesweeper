@@ -40,7 +40,6 @@ impl Server {
         (local_player_listener, namer)
     }
 
-    #[allow(dead_code)]
     pub fn on_request_to_join(&mut self, request: RequestFromSlave, addr: std::net::SocketAddr) {
         let RequestFromSlave { name } = request;
         if let Some(player_uid) = self.players.try_add(name, addr) {
@@ -52,7 +51,6 @@ impl Server {
         }
     }
 
-    #[allow(dead_code)]
     pub fn on_action_from_slave(
         &mut self,
         action: ActionFromSlave,

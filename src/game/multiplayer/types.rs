@@ -52,5 +52,7 @@ pub struct RequestFromSlave {
     pub name: String,
 }
 
-//TODO Should hold either RequestFromSlave or ActionFromSlave
-pub struct MessageFromSlave;
+pub enum MessageFromSlave {
+    Join(RequestFromSlave),
+    Action(ActionFromSlave),
+}

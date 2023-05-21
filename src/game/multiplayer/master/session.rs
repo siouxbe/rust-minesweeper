@@ -6,12 +6,12 @@ type Server = server::Server;
 pub struct Session {
     client: Client,
     server: Server,
-    _messenger_thread: std::marker::PhantomData<MessengerThread>,
+    _messenger_thread: MessengerThread,
 }
 
 impl Session {
     pub fn new(client: Client, server: Server) -> Self {
-        let _messenger_thread = std::marker::PhantomData {};
+        let _messenger_thread = todo!();
         Self {
             client,
             server,

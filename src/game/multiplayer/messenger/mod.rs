@@ -31,7 +31,6 @@ impl Messenger {
         Self { socket }
     }
 
-    #[allow(unused_variables)]
     pub fn request_to_join(
         &self,
         buffer: &mut MessengerBuffer,
@@ -61,7 +60,6 @@ impl Messenger {
         self.click(buffer, session, coord, left)
     }
 
-    #[allow(unused_variables)]
     fn click(&self, buffer: &mut MessengerBuffer, session: SessionID, coord: &Coord, left: bool) {
         let msg = msg::from_slave::Click {
             session: session.into(),
@@ -126,7 +124,6 @@ impl Messenger {
             .map(|(u, _addr)| u.into())
     }
 
-    #[allow(dead_code)]
     pub fn receive_packet_from_slave(
         &self,
         buffer: &mut MessengerBuffer,
