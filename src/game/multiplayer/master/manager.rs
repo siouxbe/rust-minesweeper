@@ -34,12 +34,26 @@ impl game::session::SessionManager for Manager {
             mines,
             lives,
         } = self.config;
-        let client = game::client::session::Session::new(coords, mines, lives);
+        let client = {
+            let client = game::client::session::Session::new(coords, mines, lives);
+            let client = sync::Mutex::new(client);
+            sync::Arc::new(client)
+        };
         let server = {
             let server = game::server::session::Session::new(coords, mines, lives);
-            server::Server::new(server, messenger, self.name.clone())
+            let server = server::Server::new(server, messenger.clone(), self.name.clone());
+            let server = sync::Mutex::new(server);
+            sync::Arc::new(server)
         };
-        MultiplayerSession(session::Session::new(client, server))
+        let slave_listener = MySlaveListener {
+            server: sync::Arc::downgrade(&server),
+            client: sync::Arc::downgrade(&client),
+        };
+        let messenger_thread = messenger_thread::spawn_read_messages_from_slaves_to_master_thread(
+            sync::Arc::downgrade(&messenger),
+            slave_listener,
+        );
+        MultiplayerSession(session::Session::new(client, server, messenger_thread))
     }
 }
 
@@ -52,5 +66,38 @@ impl game::session::Session for MultiplayerSession {
     {
         let Self(session) = self;
         session.snapshot(f)
+    }
+}
+
+struct MySlaveListener {
+    client: sync::Weak<sync::Mutex<game::client::session::Session>>,
+    server: sync::Weak<sync::Mutex<server::Server>>,
+}
+
+impl SlaveListener for MySlaveListener {
+    fn on_request_to_join(&mut self, request: RequestFromSlave, addr: std::net::SocketAddr) {
+        if let Some(server) = self.server.upgrade() {
+            server
+                .lock()
+                .expect("Failed to lock multiplayer server session")
+                .on_request_to_join(request, addr)
+        }
+    }
+
+    fn on_action_from_slave(&mut self, action: ActionFromSlave, addr: std::net::SocketAddr) {
+        if let Some(server) = self.server.upgrade() {
+            let updates = server
+                .lock()
+                .expect("Failed to lock multiplayer server session")
+                .on_action_from_slave(action, addr);
+            if let Some(updates) = updates {
+                if let Some(client) = self.client.upgrade() {
+                    client
+                        .lock()
+                        .expect("Failed to lock multiplayer client session")
+                        .on_updates(updates);
+                }
+            }
+        }
     }
 }
