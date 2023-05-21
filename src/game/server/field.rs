@@ -269,28 +269,17 @@ struct Cell {
 
 impl From<game::server::field::Cell> for game::Cell {
     fn from(cell: Cell) -> Self {
-        /*
-         * TODO: Map the type 'sioux_rust_minesweeper_crate::game::server::field::Cell'
-         * to the type 'sioux_rust_minesweeper_crate::game::Cell'.
-         * You can use an if-else structure or the 'match' keyword.
-         *
-         * At the very least you should be able to handle the single case
-         * where the content was a mine and the status was uncovered;
-         * obviously this has to be mapped to the value 'ExplodedBy'.
-         *
-         * An other case is when the status was covered. Regardless of its content,
-         * it should be mapped to covered.
-         *
-         * Another example: when the content was a hint and the status is
-         * 'at the game end, it is still covered',
-         * then it must be mapped to a hint provided by the 'SYSTEM_UID' user.
-         *
-         * One more example: when the content was a hint and the status is
-         * 'at the game end, it was flagged',
-         * then it must be mapped to 'FalseFlaggedBy'.
-         *
-         */
-        todo!()
+        match (cell.status, cell.content) {
+            (Status::EndGameCovered, Content::Mine) => Self::Mine,
+            (Status::EndGameCovered, Content::Hint(hint)) => Self::HintBy(hint, SYSTEM_UID),
+            (Status::UncoveredBy(uid), Content::Mine) => Self::ExplodedBy(uid),
+            (Status::UncoveredBy(uid), Content::Hint(hint)) => Self::HintBy(hint, uid),
+            (Status::MarkedBy(uid), _) => Self::FlaggedBy(uid),
+            (Status::QuestionMarkedBy(uid), _) => Self::QuestionMarked(uid),
+            (Status::EndGameMarkedBy(uid), Content::Mine) => Self::FlaggedBy(uid),
+            (Status::EndGameMarkedBy(uid), Content::Hint(_)) => Self::FalseFlaggedBy(uid),
+            (Status::Covered, _) => Self::Covered,
+        }
     }
 }
 
