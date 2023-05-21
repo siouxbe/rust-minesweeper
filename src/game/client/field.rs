@@ -7,32 +7,27 @@ pub struct Field {
 
 impl Field {
     pub fn new(coords: Coordinations) -> Self {
-        /*
-         * TODO: At the beginning of the game, from a client side perspective,
-         * every cell is still covered.
-         */
-        todo!()
+        let mut cells = Vec::new();
+        cells.resize(coords.size(), Cell::Covered);
+        Self { coords, cells }
     }
 
     pub fn get_cell(&self, coord: &Coord) -> &Cell {
-        /*
-         * TODO: The unit tests will succeed only if this method panics
-         * when the cell's location is invalid for this field.
-         */
-        todo!()
+        let Index(index) = self.coords.to_index(coord).expect("Invalid coordinates");
+        &self.cells[index]
     }
 
     fn on_update(&mut self, update: CellUpdate) {
-        /*
-         * TODO: A cell update provides the cell's location and its updated content.
-         * The unit tests will succeed only if this method panics
-         * when the cell's location is invalid for this field.
-         */
-        todo!()
+        let CellUpdate { cell, coord } = update;
+        let Index(index) = self.coords.to_index(&coord).expect("Invalid coordinates");
+        self.cells[index] = cell;
     }
 
     pub fn on_updates(&mut self, updates: CellUpdates) {
-        todo!()
+        let CellUpdates(updates) = updates;
+        for update in updates {
+            self.on_update(update)
+        }
     }
 }
 
