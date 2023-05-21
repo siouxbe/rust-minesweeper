@@ -16,15 +16,15 @@ pub struct Coordinations {
 
 impl Coordinations {
     pub const fn from_width_and_height(width: u32, height: u32) -> Self {
-        todo!()
+        Self { width, height }
     }
 
     pub fn rows(&self) -> u32 {
-        todo!()
+        self.height
     }
 
     pub fn columns(&self) -> u32 {
-        todo!()
+        self.width
     }
 
     pub fn w_over_h(&self) -> f64 {
@@ -38,7 +38,7 @@ impl Coordinations {
     ///assert_eq!(c.size(), 15);
     ///```
     pub fn size(&self) -> usize {
-        todo!()
+        (self.width * self.height) as usize
     }
 
     /// Converts an index to a coordinate.
@@ -49,7 +49,11 @@ impl Coordinations {
     ///assert_eq!(c.to_coord(Index(9)), Some(Coord{x: 4, y: 1}));
     ///```
     pub fn to_coord(&self, index: Index) -> Option<Coord> {
-        todo!()
+        let Index(index) = index;
+        let y = index as u32 / self.width;
+        let x = index as u32 - self.width * y;
+        let coord = Coord { x, y };
+        self.inside(&coord).then_some(coord)
     }
 
     /// Converts a coordinate to an index.
@@ -60,7 +64,10 @@ impl Coordinations {
     ///assert_eq!(c.to_index(&Coord{x: 4, y: 1}), Some(Index(9)));
     ///```
     pub fn to_index(&self, coord: &Coord) -> Option<Index> {
-        todo!()
+        self.inside(coord).then(|| {
+            let index = coord.y * self.width + coord.x;
+            Index(index as usize)
+        })
     }
 
     /// Returns an iterator over all neighboring indices.
