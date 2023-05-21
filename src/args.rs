@@ -20,6 +20,14 @@ static ARG_SLAVEPORT: &str = "slaveport";
 
 static ARG_NAME: &str = "name";
 
+/*
+ * TODO: Config can not be formatted yet.
+ * Complete the code so that it implements both 'std::fmt::Debug' and 'std::fmt::Display'
+ * and passes the unit tests.
+ * The unit tests require that two lines are printed.
+ * Complete the exercise first by adding a '\n' to the text string.
+ * Then try to solve the exercise without explicitly adding '\n' to the text string.
+ */
 pub struct Config {
     pub width: u32,
     pub height: u32,
@@ -41,13 +49,11 @@ pub enum Modus {
     },
 }
 
-#[allow(unused_variables)]
 impl std::fmt::Display for Modus {
     fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Local(config) => {
-                //write!(fmt, "Local singleplayer game. Config:\n{config}")
-                todo!()
+                write!(fmt, "Local singleplayer game. Config:\n{config}")
             }
             Self::Slave {
                 name,
@@ -60,8 +66,7 @@ impl std::fmt::Display for Modus {
                 )
             }
             Self::Master { name, port, config } => {
-                //write!(fmt, "Multiplayer game:\nYou are {name}, listening at port {port}. Config:\n{config}")
-                todo!()
+                write!(fmt, "Multiplayer game:\nYou are {name}, listening at port {port}. Config:\n{config}")
             }
         }
     }
@@ -236,19 +241,17 @@ mod tests {
 
     #[test]
     fn config_can_be_debug_formatted() {
-        /*let s = format!("Game starting with {CONFIG:?}!");
+        let s = format!("Game starting with {CONFIG:?}!");
         assert_eq!(
             &s,
             "Game starting with Config { width: 16, height: 20, mines: 15, lives: 3 }!"
-        );*/
-        todo!()
+        );
     }
 
     #[test]
     fn config_can_be_display_formatted() {
-        /*let s = format!("Game starting with {CONFIG}!");
-        assert_eq!(&s, "Game starting with Minefield: width = 16, height = 20.\nThere are 15 mines and players have a combined total of 3 lives.!");*/
-        todo!()
+        let s = format!("Game starting with {CONFIG}!");
+        assert_eq!(&s, "Game starting with Minefield: width = 16, height = 20.\nThere are 15 mines and players have a combined total of 3 lives.!");
     }
 
     #[test]
@@ -264,7 +267,7 @@ mod tests {
     fn display_config_may_or_may_not_return_err_when_formatter_returns_err_on_nth_call(n: u32) {
         let allow = n - 1;
         let mut f = Formatter::new(allow);
-        let s: std::fmt::Result = todo!(); //write!(f, "{CONFIG}");
+        let s: std::fmt::Result = write!(f, "{CONFIG}");
         if f.times_called() <= allow {
             assert!(s.is_ok());
         } else {
