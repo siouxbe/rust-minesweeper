@@ -15,7 +15,6 @@ pub struct Coordinations {
 }
 
 impl Coordinations {
-    #[allow(unused_variables)]
     pub const fn from_width_and_height(width: u32, height: u32) -> Self {
         todo!()
     }
@@ -49,7 +48,6 @@ impl Coordinations {
     ///let c = Coordinations::from_width_and_height(5, 3);
     ///assert_eq!(c.to_coord(Index(9)), Some(Coord{x: 4, y: 1}));
     ///```
-    #[allow(unused_variables)]
     pub fn to_coord(&self, index: Index) -> Option<Coord> {
         todo!()
     }
@@ -61,7 +59,6 @@ impl Coordinations {
     ///let c = Coordinations::from_width_and_height(5, 3);
     ///assert_eq!(c.to_index(&Coord{x: 4, y: 1}), Some(Index(9)));
     ///```
-    #[allow(unused_variables)]
     pub fn to_index(&self, coord: &Coord) -> Option<Index> {
         todo!()
     }
@@ -74,7 +71,6 @@ impl Coordinations {
 
     /// Determines whether or not a coordinate can point to an existing element within the width
     /// and height.
-    #[allow(dead_code)]
     fn inside(&self, coord: &Coord) -> bool {
         coord.x < self.width && coord.y < self.height
     }
