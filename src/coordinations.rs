@@ -71,8 +71,18 @@ impl Coordinations {
     }
 
     /// Returns an iterator over all neighboring indices.
-    #[allow(unused_variables)]
     pub fn neighbors_at_index(&self, index: Index) -> impl Iterator<Item = Index> {
+        /*
+         * TODO: Return an iterator that provides all the neighboring indices.
+         * For example, a cell with coordinates {x, y} will have at most 8 neighbors:
+         * {x-1, y-1}, {x, y-1}, {x+1, y-1}
+         * {x-1, y+0},         , {x+1, y+0}
+         * {x-1, y+1}, {x, y+1}, {x+1, y+1}
+         *
+         * There are two ways to solve this excercise; using functional programming is probably the
+         * simplest and least error-prone. You can also define a struct of your own, which holds the
+         * iterating state, and implement the trait 'std::iter::Iterator' for it.
+         */
         std::iter::empty()
     }
 
