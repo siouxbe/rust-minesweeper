@@ -229,7 +229,21 @@ mod players {
         }
 
         pub fn names(&self) -> UserNames {
-            todo!()
+            UserNames(
+                std::iter::once(UserName {
+                    uid: self.my_uid,
+                    name: self.my_name.clone(),
+                })
+                .chain(
+                    self.slaves
+                        .iter()
+                        .map(|Player { uid, name, addr: _ }| UserName {
+                            uid: *uid,
+                            name: name.clone(),
+                        }),
+                )
+                .collect(),
+            )
         }
 
         pub fn get_uid(&self, peer: &std::net::SocketAddr) -> Option<SessionUserID> {

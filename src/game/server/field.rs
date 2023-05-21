@@ -330,23 +330,24 @@ impl Concept {
     }
 
     fn to_cells(&self) -> Vec<Cell> {
-        /*
-         * TODO: A 'concept' is simply the concept of the layout of the minefield. It tells where
-         * which cells will be mines and which cells will be empty. We must translate this to the
-         * initial cells: all cells will initially be covered, and any cell that does not hold a
-         * mine will hold a hint, telling how many of the (at the most) 8 surrounding cells also
-         * hold a mine.
-         *
-         * How to get started: The unit test has 3 asserts. You should comment out the 3rd assert
-         * for now,
-         * as this one is the most complicated and requires you to implement 'neighbors_at_index'
-         * for coordinations to succeed. When that one is implemented too, you can uncomment the
-         * last assert again.
-         *
-         * The fact that 'neighbors_at_index' is not implemented yet does not stop you from
-         * completing the code in this function, making sure that it compiles.
-         */
-        todo!()
+        self.mines
+            .iter()
+            .enumerate()
+            .map(|(index, mine)| {
+                let content = if *mine {
+                    Content::Mine
+                } else {
+                    let hint = self
+                        .coords
+                        .neighbors_at_index(Index(index))
+                        .filter(|Index(neighbor_index)| self.mines[*neighbor_index])
+                        .count();
+                    Content::Hint(Hint(hint as u8))
+                };
+                let status = Status::Covered;
+                Cell { content, status }
+            })
+            .collect()
     }
 }
 
