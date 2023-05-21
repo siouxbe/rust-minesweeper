@@ -2,13 +2,13 @@ use super::*;
 
 use crate::game::session::Namer;
 
+use std::cell::RefCell;
+use std::rc::Rc;
+
 /// Contains all data required to run a single-player game
 pub struct Session {
-    server: server::Server<game::client::session::Session>,
-    /*
-     * TODO: Replace by another type
-     */
-    client: game::client::session::Session,
+    server: server::Server<ClientSessionCell>,
+    client: ClientSessionCell,
     namer: LocalSessionNamer,
 }
 
@@ -20,39 +20,9 @@ impl Session {
             lives,
         } = *config;
         let client = game::client::session::Session::new(coords, mines, lives);
+        let client = ClientSessionCell::new(client);
         let server = game::server::session::Session::new(coords, mines, lives);
-        /*
-         * TODO: The 'server' variable contains an instance of the multi-purpose struct
-         * 'game::server::session::Session'. It must be wrapped into a more specific instance of
-         * 'game::local::server::Server'. In the documentation of that last one, you will find that
-         * it requires an updates_listener, and that it must implement the trait UpdatesListener
-         * for it to work. In the documentation of UpdatesListener, you will find that it has one
-         * method 'on_updates' which takes &mut self as the first argument.
-         *
-         * Now luckily for us, we already have an instance here that implements that trait: the
-         * variable 'client' holds a value that does. Unfortunately, we can not pass that variable
-         * by value to the call of 'server::Server::new' (try it out, the compiler will confirm)
-         * because it must also be passed by value to the return value of this function.
-         *
-         * The instance of 'client' also does not implement the 'Clone' trait, and besides, we
-         * don't want to have two instances of it anyway.
-         *
-         * You must replace the type of the field 'client: game::client::session::Session' with
-         * something that allows us to pass multiple references to it (shared ownership) at
-         * runtime, so that we can pass it to both 'server::Server::new' and the returned value.
-         * As long as that new type still implements the trait 'UpdatesListener', we should be
-         * fine.
-         *
-         * Two extra warnings though:
-         * First, you can safely assume that whenever the value of the
-         * client is needed, there will not be another function deeper in the call stack that is
-         * referencing it.
-         * Second, for you to implement 'UpdatesListener', you need to have exclusive access to the
-         * client. So the problem is dual: we need both shared ownership and the option to acquire
-         * exclusive access to its contents at runtime.
-         *
-         */
-        let local_updates_listener = todo!();
+        let local_updates_listener = client.clone();
         let server = server::Server::new(server, local_updates_listener, SessionUserID::new(1));
         let namer = LocalSessionNamer;
         Self {
@@ -91,3 +61,30 @@ impl Namer for LocalSessionNamer {
     }
 }
 
+#[derive(Clone)]
+struct ClientSessionCell(Rc<RefCell<game::client::session::Session>>);
+
+impl ClientSessionCell {
+    pub fn new(session: game::client::session::Session) -> Self {
+        Self(Rc::new(RefCell::new(session)))
+    }
+
+    pub fn stats(&self) -> Stats {
+        let Self(session) = self;
+        session.borrow().stats()
+    }
+}
+
+impl UpdatesListener for ClientSessionCell {
+    fn on_updates(&mut self, updates: Updates) {
+        let Self(session) = self;
+        session.borrow_mut().on_updates(updates)
+    }
+}
+
+impl FieldProvider for ClientSessionCell {
+    fn get_cell(&self, coord: &Coord) -> Cell {
+        let Self(session) = self;
+        session.borrow().get_cell(coord)
+    }
+}
