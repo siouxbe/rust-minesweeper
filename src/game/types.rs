@@ -1,6 +1,5 @@
 use super::*;
 
-#[allow(dead_code)]
 pub const SYSTEM_UID: SessionUserID = SessionUserID(0);
 
 pub trait UpdatesListener {
