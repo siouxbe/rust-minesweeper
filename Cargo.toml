@@ -1,0 +1,39 @@
+[package]
+name = "sioux-rust-minesweeper"
+version = "0.1.0"
+edition = "2021"
+default-run = "sioux-rust-minesweeper"
+
+[lib]
+name = "sioux_rust_minesweeper_crate"
+path = "src/lib.rs"
+
+[[bin]]
+name = "sioux-rust-minesweeper"
+path = "src/main.rs"
+
+[[bin]]
+name = "find_pattern_in"
+path = "src/intermezzo/find_pattern_in.rs"
+
+[[bin]]
+name = "input"
+path = "src/intermezzo/input.rs"
+
+[[bin]]
+name = "ranges"
+path = "src/intermezzo/ranges.rs"
+
+[dependencies]
+clap = "4.1.11"
+gfx = "0.18"
+gfx_core = "0.9"
+gfx_device_gl = "0.16.2"
+image = "0.24"
+itertools = "0.10.5"
+piston2d-graphics = "0.42.0"
+piston_window = "0.124.0"
+rand = "0.8"
+rusttype = "0.9.2"
+serde = {version="1.0", features = ["derive"]}
+serde_json = "1.0"
