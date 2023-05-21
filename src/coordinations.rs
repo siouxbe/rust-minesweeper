@@ -72,18 +72,10 @@ impl Coordinations {
 
     /// Returns an iterator over all neighboring indices.
     pub fn neighbors_at_index(&self, index: Index) -> impl Iterator<Item = Index> {
-        /*
-         * TODO: Return an iterator that provides all the neighboring indices.
-         * For example, a cell with coordinates {x, y} will have at most 8 neighbors:
-         * {x-1, y-1}, {x, y-1}, {x+1, y-1}
-         * {x-1, y+0},         , {x+1, y+0}
-         * {x-1, y+1}, {x, y+1}, {x+1, y+1}
-         *
-         * There are two ways to solve this excercise; using functional programming is probably the
-         * simplest and least error-prone. You can also define a struct of your own, which holds the
-         * iterating state, and implement the trait 'std::iter::Iterator' for it.
-         */
-        std::iter::empty()
+        self.to_coord(index)
+            .map_or_else(NeighborsIterator::end, |coord| {
+                NeighborsIterator::new(coord, *self)
+            })
     }
 
     /// Determines whether or not a coordinate can point to an existing element within the width
@@ -105,6 +97,84 @@ pub struct Coord {
 /// Represents a location in a rectangular field using an index.
 #[derive(Clone, Copy, Eq, PartialEq, Hash, Debug)]
 pub struct Index(pub usize);
+
+enum Neighbor {
+    TopLeft,
+    TopMiddle,
+    TopRight,
+    MiddleLeft,
+    MiddleRight,
+    BottomLeft,
+    BottomMiddle,
+    BottomRight,
+}
+
+impl Neighbor {
+    fn new() -> Self {
+        Self::TopLeft
+    }
+}
+
+/// An iterator over all neighboring indices.
+/// Two coordinates a and b are neighbors if |a.x-b.x| <= 1 and |a.y-b.y| <= 1 and a != b.
+pub struct NeighborsIterator {
+    middle: Coord,
+    coords: Coordinations,
+    neighbor: Option<Neighbor>,
+}
+
+impl NeighborsIterator {
+    fn new(middle: Coord, coords: Coordinations) -> Self {
+        let neighbor = Some(Neighbor::new());
+        Self {
+            middle,
+            coords,
+            neighbor,
+        }
+    }
+
+    fn end() -> Self {
+        let middle = Coord { x: 0, y: 0 };
+        let coords = Coordinations::from_width_and_height(0, 0);
+        let neighbor = None;
+        Self {
+            middle,
+            coords,
+            neighbor,
+        }
+    }
+}
+
+impl std::iter::Iterator for NeighborsIterator {
+    type Item = Index;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let Coord { x, y } = self.middle;
+        loop {
+            let neighbor = match &self.neighbor {
+                Some(neighbor) => neighbor,
+                None => return None,
+            };
+            let (dx, dy, next): (i32, i32, Option<Neighbor>) = match neighbor {
+                Neighbor::TopLeft => (-1, -1, Some(Neighbor::TopMiddle)),
+                Neighbor::TopMiddle => (0, -1, Some(Neighbor::TopRight)),
+                Neighbor::TopRight => (1, -1, Some(Neighbor::MiddleLeft)),
+                Neighbor::MiddleLeft => (-1, 0, Some(Neighbor::MiddleRight)),
+                Neighbor::MiddleRight => (1, 0, Some(Neighbor::BottomLeft)),
+                Neighbor::BottomLeft => (-1, 1, Some(Neighbor::BottomMiddle)),
+                Neighbor::BottomMiddle => (0, 1, Some(Neighbor::BottomRight)),
+                Neighbor::BottomRight => (1, 1, None),
+            };
+            self.neighbor = next;
+            let nx: u32 = (x as i32 + dx) as u32;
+            let ny: u32 = (y as i32 + dy) as u32;
+            let n = Coord { x: nx, y: ny };
+            if let Some(index) = self.coords.to_index(&n) {
+                return Some(index);
+            }
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {

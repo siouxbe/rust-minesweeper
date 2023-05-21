@@ -75,7 +75,12 @@ struct Namer {
 
 impl game::session::Namer for Namer {
     fn name(&self, uid: SessionUserID) -> &str {
-        todo!()
+        let id = uid;
+        let UserNames(usernames) = &self.latest.names;
+        usernames
+            .iter()
+            .find_map(|UserName { uid, name }| (id == *uid).then_some(name))
+            .expect("Master hasn't sent that userid")
     }
 }
 
