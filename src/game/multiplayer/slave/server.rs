@@ -74,7 +74,6 @@ struct Namer {
 }
 
 impl game::session::Namer for Namer {
-    #[allow(unused_variables)]
     fn name(&self, uid: SessionUserID) -> &str {
         todo!()
     }

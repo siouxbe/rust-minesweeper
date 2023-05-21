@@ -12,7 +12,6 @@ const RANDOM_FIELD: bool = true;
 type UID = SessionUserID;
 
 #[derive(Clone, Copy, Eq, PartialEq)]
-#[allow(dead_code)]
 pub enum Content {
     Mine,
     Hint(Hint),
@@ -283,7 +282,6 @@ impl From<game::server::field::Cell> for game::Cell {
     }
 }
 
-#[allow(dead_code)]
 struct Concept {
     mines: Vec<bool>,
     coords: Coordinations,
@@ -332,6 +330,22 @@ impl Concept {
     }
 
     fn to_cells(&self) -> Vec<Cell> {
+        /*
+         * TODO: A 'concept' is simply the concept of the layout of the minefield. It tells where
+         * which cells will be mines and which cells will be empty. We must translate this to the
+         * initial cells: all cells will initially be covered, and any cell that does not hold a
+         * mine will hold a hint, telling how many of the (at the most) 8 surrounding cells also
+         * hold a mine.
+         *
+         * How to get started: The unit test has 3 asserts. You should comment out the 3rd assert
+         * for now,
+         * as this one is the most complicated and requires you to implement 'neighbors_at_index'
+         * for coordinations to succeed. When that one is implemented too, you can uncomment the
+         * last assert again.
+         *
+         * The fact that 'neighbors_at_index' is not implemented yet does not stop you from
+         * completing the code in this function, making sure that it compiles.
+         */
         todo!()
     }
 }
