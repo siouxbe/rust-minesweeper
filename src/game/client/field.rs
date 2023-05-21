@@ -1,29 +1,36 @@
 use super::*;
 
-#[allow(dead_code)]
 pub struct Field {
     coords: Coordinations,
     cells: Vec<Cell>,
 }
 
 impl Field {
-    #[allow(unused_variables)]
     pub fn new(coords: Coordinations) -> Self {
+        /*
+         * TODO: At the beginning of the game, from a client side perspective,
+         * every cell is still covered.
+         */
         todo!()
     }
 
-    #[allow(unused_variables)]
     pub fn get_cell(&self, coord: &Coord) -> &Cell {
+        /*
+         * TODO: The unit tests will succeed only if this method panics
+         * when the cell's location is invalid for this field.
+         */
         todo!()
     }
 
-    #[allow(unused_variables)]
-    #[allow(dead_code)]
     fn on_update(&mut self, update: CellUpdate) {
+        /*
+         * TODO: A cell update provides the cell's location and its updated content.
+         * The unit tests will succeed only if this method panics
+         * when the cell's location is invalid for this field.
+         */
         todo!()
     }
 
-    #[allow(unused_variables)]
     pub fn on_updates(&mut self, updates: CellUpdates) {
         todo!()
     }
