@@ -1,7 +1,7 @@
 use super::*;
 
-type Client = game::client::session::Session;
-type Server = server::Server;
+type Client = std::sync::Arc<std::sync::Mutex<game::client::session::Session>>;
+type Server = std::sync::Arc<std::sync::Mutex<server::Server>>;
 
 pub struct Session {
     client: Client,
@@ -10,8 +10,7 @@ pub struct Session {
 }
 
 impl Session {
-    pub fn new(client: Client, server: Server) -> Self {
-        let _messenger_thread = todo!();
+    pub fn new(client: Client, server: Server, _messenger_thread: MessengerThread) -> Self {
         Self {
             client,
             server,
@@ -25,12 +24,20 @@ impl game::session::Session for Session {
     where
         for<'a> F: FnOnce(game::session::SessionSnapshot<'a>) -> R,
     {
-        let user_stats = self.server.user_stats();
-        let status = self.server.status();
-        let coords = self.server.coords();
-        let stats = self.client.stats();
-        let field_provider: &game::client::session::Session = &self.client;
-        let (mut local_player_listener, namer) = self.server.servitors();
+        let mut server = self
+            .server
+            .lock()
+            .expect("Failed to lock multiplayer server session");
+        let mut client = self
+            .client
+            .lock()
+            .expect("Failed to lock multiplayer client session");
+        let user_stats = server.user_stats();
+        let status = server.status();
+        let coords = server.coords();
+        let stats = client.stats();
+        let field_provider: &game::client::session::Session = &client;
+        let (mut local_player_listener, namer) = server.servitors();
         let mut local_player_listener =
             record_updates::RecordUpdates::new(&mut local_player_listener);
         let r = f(game::session::SessionSnapshot {
@@ -43,7 +50,7 @@ impl game::session::Session for Session {
             local_player_listener: &mut local_player_listener,
         });
         if let Some(updates) = local_player_listener.updates() {
-            self.client.on_updates(updates);
+            client.on_updates(updates);
         }
         r
     }

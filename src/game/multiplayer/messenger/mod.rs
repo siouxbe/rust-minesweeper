@@ -39,7 +39,7 @@ impl Messenger {
         let msg = msg::from_slave::JoinRequest {
             name: player_name.into(),
         };
-        let msg = msg::from_slave::MessageSentByClient;
+        let msg = msg::from_slave::MessageSentByClient::Join(msg);
         loop {
             println!("Sending a join request");
             if let MessageSent::Yes = self.send_packet_from_slave(buffer, &msg).unwrap() {
@@ -66,7 +66,7 @@ impl Messenger {
             coord: (*coord).into(),
             left,
         };
-        let msg = msg::from_slave::MessageSentByClient;
+        let msg = msg::from_slave::MessageSentByClient::Click(msg);
         self.send_packet_from_slave(buffer, &msg).unwrap();
     }
 

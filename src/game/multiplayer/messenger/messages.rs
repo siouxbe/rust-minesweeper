@@ -9,11 +9,17 @@ pub mod from_slave {
     use super::*;
 
     #[derive(Serialize, Deserialize, Debug)]
-    pub struct MessageSentByClient;
+    pub enum MessageSentByClient {
+        Join(JoinRequest),
+        Click(Click),
+    }
 
     impl From<MessageSentByClient> for MessageFromSlave {
-        fn from(_msg: MessageSentByClient) -> Self {
-            Self {}
+        fn from(msg: MessageSentByClient) -> Self {
+            match msg {
+                MessageSentByClient::Join(j) => Self::Join(j.into()),
+                MessageSentByClient::Click(c) => Self::Action(c.into()),
+            }
         }
     }
 
