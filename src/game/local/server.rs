@@ -1,9 +1,9 @@
 use super::*;
 
 /// Contains all data required to run a single-player game
-pub struct Server<L> {
+pub struct Server {
     server: game::server::session::Session,
-    local_updates_listener: L,
+    local_updates_listener: Box<dyn UpdatesListener>,
     uid: SessionUserID,
 }
 
