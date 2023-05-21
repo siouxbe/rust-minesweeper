@@ -20,19 +20,28 @@ static ARG_SLAVEPORT: &str = "slaveport";
 
 static ARG_NAME: &str = "name";
 
-/*
- * TODO: Config can not be formatted yet.
- * Complete the code so that it implements both 'std::fmt::Debug' and 'std::fmt::Display'
- * and passes the unit tests.
- * The unit tests require that two lines are printed.
- * Complete the exercise first by adding a '\n' to the text string.
- * Then try to solve the exercise without explicitly adding '\n' to the text string.
- */
+#[derive(Debug)]
 pub struct Config {
     pub width: u32,
     pub height: u32,
     pub mines: u32,
     pub lives: u32,
+}
+
+impl std::fmt::Display for Config {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let Config {
+            width,
+            height,
+            mines,
+            lives,
+        } = self;
+        writeln!(fmt, "Minefield: width = {width}, height = {height}.")?;
+        write!(
+            fmt,
+            "There are {mines} mines and players have a combined total of {lives} lives."
+        )
+    }
 }
 
 pub enum Modus {
