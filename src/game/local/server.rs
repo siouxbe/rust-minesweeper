@@ -7,13 +7,10 @@ pub struct Server {
     uid: SessionUserID,
 }
 
-impl<L> Server<L>
-where
-    L: UpdatesListener,
-{
+impl Server {
     pub fn new(
         server: game::server::session::Session,
-        local_updates_listener: L,
+        local_updates_listener: Box<dyn UpdatesListener>,
         uid: SessionUserID,
     ) -> Self {
         Self {
@@ -42,10 +39,7 @@ where
     }
 }
 
-impl<L> LocalPlayerListener for Server<L>
-where
-    L: UpdatesListener,
-{
+impl LocalPlayerListener for Server {
     fn on_left_click(&mut self, coord: &Coord) {
         let updates = self.server.uncover(coord, self.uid);
         self.on_click(updates)

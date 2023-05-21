@@ -54,3 +54,12 @@ pub struct RequestFromSlave {
 
 //TODO Should hold either RequestFromSlave or ActionFromSlave
 pub struct MessageFromSlave;
+
+pub struct NamerWrapper<'a>(pub &'a dyn game::session::Namer);
+
+impl game::session::Namer for NamerWrapper<'_> {
+    fn name(&self, uid: SessionUserID) -> &str {
+        let Self(namer) = self;
+        namer.name(uid)
+    }
+}

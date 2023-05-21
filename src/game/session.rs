@@ -12,7 +12,7 @@ pub struct SessionSnapshot<'a> {
     pub user_stats: UserStats,
     pub status: Status,
     pub coords: Coordinations,
-    pub namer: &'a dyn Namer,
+    pub namer: Box<dyn Namer + 'a>,
     pub field_provider: &'a dyn FieldProvider,
     pub local_player_listener: &'a mut dyn LocalPlayerListener,
 }
