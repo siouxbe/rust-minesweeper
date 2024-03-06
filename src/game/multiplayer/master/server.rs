@@ -262,7 +262,7 @@ mod players {
         }
     }
 
-    fn next_uid(slaves: &Vec<Player>) -> SessionUserID {
+    fn next_uid(slaves: &[Player]) -> SessionUserID {
         let uid = 2 + slaves.len();
         SessionUserID(uid.try_into().unwrap())
     }
