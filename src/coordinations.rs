@@ -71,11 +71,24 @@ impl Coordinations {
     }
 
     /// Returns an iterator over all neighboring indices.
-    pub fn neighbors_at_index(&self, index: Index) -> impl Iterator<Item = Index> {
-        self.to_coord(index)
-            .map_or_else(NeighborsIterator::end, |coord| {
-                NeighborsIterator::new(coord, *self)
-            })
+    pub fn neighbors_at_index(&self, index: Index) -> impl Iterator<Item = Index> + '_ {
+        let offsets: &[(i32, i32)] = &[
+            (-1, -1),
+            (0, -1),
+            (1, -1),
+            (-1, 0),
+            (1, 0),
+            (-1, 1),
+            (0, 1),
+            (1, 1),
+        ];
+        self.to_coord(index).into_iter().flat_map(|coord: Coord| {
+            offsets
+                .iter()
+                .filter_map(move |(dx, dy)| add(coord.x, *dx).zip(add(coord.y, *dy)))
+                .map(|(x, y)| Coord { x, y })
+                .filter_map(|c| self.to_index(&c))
+        })
     }
 
     /// Determines whether or not a coordinate can point to an existing element within the width
@@ -83,6 +96,12 @@ impl Coordinations {
     fn inside(&self, coord: &Coord) -> bool {
         coord.x < self.width && coord.y < self.height
     }
+}
+
+fn add(u: u32, s: i32) -> Option<u32> {
+    u.try_into()
+        .ok()
+        .and_then(|su: i32| (su + s).try_into().ok())
 }
 
 /// Represents a location in a rectangular field using an x coordinate and an y coordinate.
@@ -97,84 +116,6 @@ pub struct Coord {
 /// Represents a location in a rectangular field using an index.
 #[derive(Clone, Copy, Eq, PartialEq, Hash, Debug)]
 pub struct Index(pub usize);
-
-enum Neighbor {
-    TopLeft,
-    TopMiddle,
-    TopRight,
-    MiddleLeft,
-    MiddleRight,
-    BottomLeft,
-    BottomMiddle,
-    BottomRight,
-}
-
-impl Neighbor {
-    fn new() -> Self {
-        Self::TopLeft
-    }
-}
-
-/// An iterator over all neighboring indices.
-/// Two coordinates a and b are neighbors if |a.x-b.x| <= 1 and |a.y-b.y| <= 1 and a != b.
-pub struct NeighborsIterator {
-    middle: Coord,
-    coords: Coordinations,
-    neighbor: Option<Neighbor>,
-}
-
-impl NeighborsIterator {
-    fn new(middle: Coord, coords: Coordinations) -> Self {
-        let neighbor = Some(Neighbor::new());
-        Self {
-            middle,
-            coords,
-            neighbor,
-        }
-    }
-
-    fn end() -> Self {
-        let middle = Coord { x: 0, y: 0 };
-        let coords = Coordinations::from_width_and_height(0, 0);
-        let neighbor = None;
-        Self {
-            middle,
-            coords,
-            neighbor,
-        }
-    }
-}
-
-impl std::iter::Iterator for NeighborsIterator {
-    type Item = Index;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let Coord { x, y } = self.middle;
-        loop {
-            let neighbor = match &self.neighbor {
-                Some(neighbor) => neighbor,
-                None => return None,
-            };
-            let (dx, dy, next): (i32, i32, Option<Neighbor>) = match neighbor {
-                Neighbor::TopLeft => (-1, -1, Some(Neighbor::TopMiddle)),
-                Neighbor::TopMiddle => (0, -1, Some(Neighbor::TopRight)),
-                Neighbor::TopRight => (1, -1, Some(Neighbor::MiddleLeft)),
-                Neighbor::MiddleLeft => (-1, 0, Some(Neighbor::MiddleRight)),
-                Neighbor::MiddleRight => (1, 0, Some(Neighbor::BottomLeft)),
-                Neighbor::BottomLeft => (-1, 1, Some(Neighbor::BottomMiddle)),
-                Neighbor::BottomMiddle => (0, 1, Some(Neighbor::BottomRight)),
-                Neighbor::BottomRight => (1, 1, None),
-            };
-            self.neighbor = next;
-            let nx: u32 = (x as i32 + dx) as u32;
-            let ny: u32 = (y as i32 + dy) as u32;
-            let n = Coord { x: nx, y: ny };
-            if let Some(index) = self.coords.to_index(&n) {
-                return Some(index);
-            }
-        }
-    }
-}
 
 #[cfg(test)]
 mod tests {
